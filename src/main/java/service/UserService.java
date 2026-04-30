@@ -117,35 +117,39 @@ public class UserService {
     public void closeAccount(int accountId) {
         Account account = accountService.getAccountStorage().get(accountId);
         if (account == null) {
-            System.out.println("Account with id=" + accountId + " not found");
+            throw new IllegalArgumentException("Account with id=" + accountId + " not found");
         }
 
         User user = findByAccountId(accountId);
         if (user == null) {
-            System.out.println("Account with id=" + accountId + " not found");
-            return;
+            throw new IllegalArgumentException("Account with id=" + accountId + " not found");
         }
 
+        //Проверка пользователя, что у него есть другой счет
         List<Account> userAccounts = user.getAccounts();
         if (userAccounts.size() <= 1) {
             throw new IllegalStateException("Cannot close the only account. User must have at least one account");
         }
 
-        Account targetAccountId = user.getAccounts().stream()
+        // Находим счет для перевода остатка
+        Account targetAccount = user.getAccounts().stream()
                 .filter(acc -> acc.getId() != accountId)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No other account available for transfer"));
+        //Переводим остаток
+        int remainAmount = account.getMoneyAmount();
+        if (remainAmount > 0) {
+            targetAccount.setMoneyAmount(targetAccount.getMoneyAmount() + remainAmount);
+            account.setMoneyAmount(0);
 
-        if (account != null) {
-            int remainAmount = account.getMoneyAmount();
-
-            if (remainAmount > 0) {
-                transfer(accountId, targetAccountId.getId(), remainAmount);
-                System.out.println("Remaining balance " + remainAmount +
-                        " transferred to account " + targetAccountId);
-            } else {
-                System.out.println("Account has zero balance, no transfer needed");
-            }
+            System.out.println("Account" + accountId + " closed.Remaining balance " + remainAmount +
+                    " transferred to account " + targetAccount.getId() + ".");
+        } else {
+            System.out.println("Account has zero balance, no transfer needed");
         }
+        // Закрываем счет, удаляем пользователя ?
+        user.getAccounts().remove(account);
+        accountService.getAccountStorage().remove(accountId);
+        System.out.println("Account" + accountId + " closed.");
     }
 }

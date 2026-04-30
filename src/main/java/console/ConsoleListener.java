@@ -192,7 +192,6 @@ public class ConsoleListener {
             int id = Integer.parseInt(scanner.nextLine().trim());
             if (accountService.isAccountExist(id)) {
                 userService.closeAccount(id);
-                System.out.println("Account closed.");
             } else {
                 System.out.println("ERROR:Account does not close");
             }
