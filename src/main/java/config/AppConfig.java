@@ -1,5 +1,6 @@
 package config;
 
+import console.ConsoleListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,13 +16,13 @@ import service.UserService;
 public class AppConfig {
 
     @Bean
-    public UserService userService(AccountService accountService) {
-        return new UserService(accountService);
+    public UserService userService(AccountService accountService, AccountProperties accountProperties) {
+        return new UserService(accountService, accountProperties);
     }
 
     @Bean
-    public AccountService accountService(AccountProperties accountProperties) {
-        return new AccountService(accountProperties);
+    public AccountService accountService() {
+        return new AccountService();
     }
 
     @Bean
@@ -30,4 +31,8 @@ public class AppConfig {
         return new AccountProperties(defaultAmount, transferCommission);
     }
 
+    @Bean
+    public ConsoleListener consoleListener(UserService userService, AccountService accountService) {
+        return new ConsoleListener(userService, accountService);
+    }
 }
