@@ -23,17 +23,18 @@ public class AccountService {
 
     public int AccountDeposit(int idAccount, int money) {
         Account account = accountStorage.get(idAccount);
-        if (money > 0 && account != null) {
-            int currentBalance = account.getMoneyAmount();
-            int deposit = money + currentBalance;
-            account.setMoneyAmount(deposit);
-            return deposit;
+        if (account == null) {
+            System.out.println("Error: Account not found");
         }
-        return 0;
-    }
 
-    public int getIdAccount() {
-        return idCounterAccount;
+        if (money <= 0) {
+            System.out.println("Error: Invalid money");
+        }
+
+        int currentBalance = account.getMoneyAmount();
+        int deposit = money + currentBalance;
+        account.setMoneyAmount(deposit);
+        return deposit;
     }
 
     public Map<Integer, Account> getAccountStorage() {

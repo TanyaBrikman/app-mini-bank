@@ -27,20 +27,6 @@ public class UserService {
         return new ArrayList<>(userStorage.values());
     }
 
-
-    public void getAccounts(int idUser, int money) {
-        var user = userStorage.get(idUser);
-        var list = user.getAccounts();
-        if (!list.isEmpty() && list.size() > 1) {
-            list.forEach(account -> {
-                account.setMoneyAmount(account.setMoneyAmount(money));
-
-            });
-        } else {
-            System.out.println("No close account " + idUser);
-        }
-    }
-
     public boolean isLoginUserExist(String login) {
         for (User user : userStorage.values()) {
             if (login.equals(user.getLogin())) {
@@ -73,6 +59,10 @@ public class UserService {
         User user = new User(counterUserId, login, accounts);
         userStorage.put(counterUserId, user);
         return user;
+    }
+
+    public boolean isUserStorageExist() {
+        return !userStorage.isEmpty();
     }
 
     public void addAccountToUser(int userId) throws Exception {
@@ -146,16 +136,16 @@ public class UserService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No other account available for transfer"));
 
+        if (account != null) {
+            int remainAmount = account.getMoneyAmount();
 
-        int remainAmount = account.getMoneyAmount();
-
-        if (remainAmount > 0) {
-            transfer(accountId, targetAccountId.getId(), remainAmount);
-            System.out.println("Remaining balance " + remainAmount +
-                    " transferred to account " + targetAccountId);
-        } else {
-            System.out.println("Account has zero balance, no transfer needed");
+            if (remainAmount > 0) {
+                transfer(accountId, targetAccountId.getId(), remainAmount);
+                System.out.println("Remaining balance " + remainAmount +
+                        " transferred to account " + targetAccountId);
+            } else {
+                System.out.println("Account has zero balance, no transfer needed");
+            }
         }
     }
-
 }
